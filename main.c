@@ -1,7 +1,7 @@
-#include "transform.h"
-//#include </usr/include/allegro5/allegro.h>
-//#include </usr/include/allegro5/allegro_image.h>
-//#include </usr/include/allegro5/allegro_native_dialog.h>
+//#include "transform.h"
+#include </usr/include/allegro5/allegro.h>
+#include </usr/include/allegro5/allegro_image.h>
+#include </usr/include/allegro5/allegro_native_dialog.h>
 #include <math.h>
 #include <stdio.h>
 
@@ -29,16 +29,15 @@ int main(int argc, char **argv){
     trans.rotation[1]=30;
     trans.transposition[0]=50;
     trans.transposition[1]=50;
-    transform(trans.srcWidth,trans.srcHeight,trans.src,WIDTH,HEIGHT,trans.rotation,trans.transposition);
-/*
+    //transform(trans.srcWidth,trans.srcHeight,trans.src,WIDTH,HEIGHT,trans.rotation,trans.transposition);
+    ALLEGRO_DISPLAY *display = NULL;
+   ALLEGRO_BITMAP  *image   = NULL;
    if(!al_init()) {
         printf("%0x\n%0x\n",ALLEGRO_VERSION_INT,al_get_allegro_image_version());
-      //al_show_native_message_box(display, "Error", "Error", "Failed to initialize allegro!",
-        //                         NULL, ALLEGRO_MESSAGEBOX_ERROR);
+      al_show_native_message_box(display, "Error", "Error", "Failed to initialize allegro!",
+                                 NULL, ALLEGRO_MESSAGEBOX_ERROR);
       return 0;
    }
-   ALLEGRO_DISPLAY *display = NULL;
-   ALLEGRO_BITMAP  *image   = NULL;
 
    if(!al_init_image_addon()) {
       al_show_native_message_box(display, "Error", "Error", "Failed to initialize al_init_image_addon!",
@@ -53,23 +52,22 @@ int main(int argc, char **argv){
                                  NULL, ALLEGRO_MESSAGEBOX_ERROR);
       return 0;
    }
-
+   al_get_pixel
    image = al_load_bitmap(pictureFile);
-
+   int i = (&image).w;
    if(!image) {
       al_show_native_message_box(display, "Error", "Error", "Failed to load image!",
                                  NULL, ALLEGRO_MESSAGEBOX_ERROR);
       al_destroy_display(display);
       return 0;
    }
-
-   al_draw_bitmap(image,200,200,0);
+   al_draw_bitmap(image,WIDTH/2,HEIGHT/2,0);
 
    al_flip_display();
    al_rest(2);
 
    al_destroy_display(display);
-   al_destroy_bitmap(image);*/
+   al_destroy_bitmap(image);
 
    return 0;
 }
