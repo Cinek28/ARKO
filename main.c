@@ -9,9 +9,10 @@
 struct transformation{
     unsigned int srcWidth;
     unsigned int srcHeight;
-    unsigned char* src;
+    uint8_t* src;
     int transposition[2];
     float rotation;
+    uint8_t* dst;
 }trans;
 
 const float FPS = 60;
@@ -32,7 +33,7 @@ int main(int argc, char **argv)
    ALLEGRO_EVENT_QUEUE *event_queue = NULL;
    ALLEGRO_TIMER *timer = NULL;
    ALLEGRO_BITMAP *image = NULL;
-   ALLEGRO_BITMAP *translatedImage = NULL;
+   ALLEGRO_BITMAP *transformedImage = NULL;
    bool key[4] = { false, false, false, false, false, false };
    bool redraw = true;
    bool doexit = false;
@@ -69,6 +70,7 @@ int main(int argc, char **argv)
    }
 
    image = al_load_bitmap(pictureFile);
+   transformedImage = al_create_bitmap(WIDTH,HEIGHT);
 
    if(!image){
       fprintf(stderr,"Failed to load image!\n");
@@ -102,12 +104,27 @@ int main(int argc, char **argv)
 
    al_start_timer(timer);
 
-   ALLEGRO_LOCKED_REGION* lockedImage = al_lock_bitmap(image,ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA,ALLEGRO_LOCK_READONLY);
-   unsigned char* pixelTable = (unsigned char*)lockedImage->data;
-   int pixelSize = lockedImage->pixel_size;
+   unsigned int tableSize = al_get_bitmap_width(image)*al_get_bitmap_height(image)*4;
+   unsigned int pitch = al_get_bitmap_width(image)*4;
+   uint8_t* pixelTable = malloc(tableSize);
+   uint8_t* newPixelTable;
+
+   al_lock_bitmap(image,ALLEGRO_PIXEL_FORMAT_RGBA_8888,ALLEGRO_LOCK_READONLY);
+
+   uint8_t r,g,b,a;
+   for (int j = 0; j < al_get_bitmap_height(image); ++j){
+        for(int i = 0; i < pitch; i = i+4){
+            al_unmap_rgba(al_get_pixel(image,i/4,j),&r,&g,&b,&a);
+            pixelTable[i] = r;
+            pixelTable[i+1] = g;
+            pixelTable[i+2] = b;
+            pixelTable[i+3] = a;
+        }
+   }
    al_unlock_bitmap(image);
 
-
+   ALLEGRO_LOCKED_REGION* locked_bitmap;
+   int pixelCoord = 0;
    while(!doexit)
    {
       ALLEGRO_EVENT ev;
@@ -205,17 +222,29 @@ int main(int argc, char **argv)
 
       if(redraw && al_is_event_queue_empty(event_queue)) {
          redraw = false;
+        locked_bitmap = al_lock_bitmap(transformedImage,ALLEGRO_PIXEL_FORMAT_RGBA_8888 , ALLEGRO_LOCK_WRITEONLY);
+        newPixelTable = (uint8_t*)(locked_bitmap->data);
+            for(int i = 0; i < WIDTH*(HEIGHT-1); i++){
+                    *(newPixelTable)-- = 255;
+                    *(newPixelTable)-- = 0;
+                    *(newPixelTable)-- = 0;
+                    *(newPixelTable)-- = 0;
 
-         //transform(pixelTable, );
+                }
 
-         al_clear_to_color(al_map_rgb(0,0,0));
+        //transform(pixelTable,  );
 
-         al_draw_bitmap(image,0,0,0);
+        al_unlock_bitmap(transformedImage);
+         //al_clear_to_color(al_map_rgb(0,0,0));
+        //al_get_
+         al_draw_bitmap(transformedImage,0,0,0);
 
          al_flip_display();
       }
    }
 
+   free(pixelTable);
+   al_destroy_bitmap(transformedImage);
    al_destroy_bitmap(image);
    al_destroy_timer(timer);
    al_destroy_display(display);
