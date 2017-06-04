@@ -39,7 +39,7 @@ int main(int argc, char **argv)
    bool key[4] = { false, false, false, false, false, false };
    bool redraw = true;
    bool doexit = false;
-   trans.rotation = 0;
+   trans.rotation = 1;
    trans.transposition[0] = 0;
    trans.transposition[1] = 0;
 
@@ -118,7 +118,7 @@ int main(int argc, char **argv)
    al_lock_bitmap(image,ALLEGRO_PIXEL_FORMAT_RGBA_8888,ALLEGRO_LOCK_READONLY);
 
 
-
+   float as = 0;
    unsigned char r,g,b,a;
    for (int j = 0; j < al_get_bitmap_height(image); ++j){
         for(int i = 0; i < pitch; i = i+4){
@@ -241,8 +241,8 @@ int main(int argc, char **argv)
                     *(trans.dst)-- = 0;
                 }
 
-        transform(trans.src, trans.srcWidth, trans.srcHeight, trans.dst, trans.dstWidth, trans.dstHeight, rotationTable, trans.transposition );
-
+        as = transform(trans.src, trans.srcWidth, trans.srcHeight, trans.dst, trans.dstWidth, trans.dstHeight, rotationTable, trans.transposition );
+        break;
         al_unlock_bitmap(transformedImage);
          al_draw_bitmap(transformedImage,0,0,0);
 
@@ -256,7 +256,7 @@ int main(int argc, char **argv)
    al_destroy_timer(timer);
    al_destroy_display(display);
    al_destroy_event_queue(event_queue);
-
+   printf("%f",as);
    return 0;
 }
 
