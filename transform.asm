@@ -41,7 +41,7 @@ transform:
 ;------------------------------------------------------------------------------
     ;Loop to print picture into bitmap:
     mov ebx, [srcheight] ;max height
-    dec ebx ; to remove
+    ;dec ebx  to remove
     mov r13,0 ;iterating Height
 
 ;rcx, rdi reserved!!!
