@@ -59,13 +59,13 @@ width:
     mulss xmm5,xmm0
     mulss xmm6,xmm1
     subss xmm5,xmm6 ;width*cos(rot)-height*sin(rot)
-    cvtss2si r15,xmm5; rotated width (integer)
+    cvttss2si r15,xmm5; rotated width (integer)
     movsd xmm5,xmm3;calculating rotated height
     movsd xmm6,xmm4
     mulss xmm5,xmm1
     mulss xmm6,xmm0
     addss xmm5,xmm6
-    cvtss2si rax,xmm5;width*sin(rot)+height*cos(rot)
+    cvttss2si rax,xmm5;width*sin(rot)+height*cos(rot)
     ;pushing registers values on stack for later
     push rax
     push r15
@@ -82,7 +82,7 @@ width:
     ;popping from stack (rotation coordinates);
     pop r15
     pop rax
-    add r15,[translationX]; adding translation x coordinate to global bitmap coordinates 
+    add r15,[translationX]; adding translation x coordinate to global bitmap coordinates
     mov rdx,r15
     cmp edx,0
     jl check
