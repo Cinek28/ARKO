@@ -30,6 +30,8 @@ int main(int argc, char **argv)
     printf("No picture selected. Provide picture file: ./Affinite <picture_name>.");
     return 0;
    }
+      trans.transposition[0] = 20;
+   trans.transposition[1] = 20;
    const char* pictureFile = argv[1];
    ALLEGRO_DISPLAY *display = NULL;
    ALLEGRO_EVENT_QUEUE *event_queue = NULL;
@@ -39,9 +41,6 @@ int main(int argc, char **argv)
    bool key[4] = { false, false, false, false, false, false };
    bool redraw = true;
    bool doexit = false;
-   trans.rotation = 1;
-   trans.transposition[0] = 0;
-   trans.transposition[1] = 0;
 
    if(!al_init()) {
       fprintf(stderr, "Failed to initialize allegro!\n");
@@ -111,27 +110,22 @@ int main(int argc, char **argv)
 
    trans.srcWidth = al_get_bitmap_width(image);
    trans.srcHeight = al_get_bitmap_height(image);
+   trans.dstWidth = WIDTH;
+   trans.dstHeight = HEIGHT;
    unsigned int tableSize = trans.srcWidth*trans.srcHeight*4;
    unsigned int pitch = trans.srcWidth*4;
    trans.src = malloc(tableSize);
 
-   al_lock_bitmap(image,ALLEGRO_PIXEL_FORMAT_RGBA_8888,ALLEGRO_LOCK_READONLY);
+     ALLEGRO_LOCKED_REGION* locked_bitmap =  al_lock_bitmap(image,ALLEGRO_PIXEL_FORMAT_RGBA_8888,ALLEGRO_LOCK_READONLY);
+   unsigned char* locked_image = (unsigned char*)(locked_bitmap->data);
 
-
-   float as = 0;
-   unsigned char r,g,b,a;
-   for (int j = 0; j < al_get_bitmap_height(image); ++j){
-        for(int i = 0; i < pitch; i = i+4){
-            al_unmap_rgba(al_get_pixel(image,i/4,j),&r,&g,&b,&a);
-            trans.src[i] = r;
-            trans.src[i+1] = g;
-            trans.src[i+2] = b;
-            trans.src[i+3] = a;
-        }
+   for (int k = trans.srcHeight*trans.srcWidth*4-4; k >= 0;k=k-4){
+            trans.src[k] =*(locked_image)--;
+            trans.src[k+3] = *(locked_image)--;
+            trans.src[k+2] = *(locked_image)--;
+            trans.src[k+1] = *(locked_image)--;
    }
    al_unlock_bitmap(image);
-
-   ALLEGRO_LOCKED_REGION* locked_bitmap;
    float rotationTable[2];
    while(!doexit)
    {
@@ -140,11 +134,11 @@ int main(int argc, char **argv)
 
       if(ev.type == ALLEGRO_EVENT_TIMER) {
          if(key[KEY_UP]) {
-            trans.transposition[1] -= 10;
+            trans.transposition[1] += 10;
          }
 
          if(key[KEY_DOWN]) {
-            trans.transposition[1] += 10;
+            trans.transposition[1] -= 10;
          }
 
          if(key[KEY_LEFT]) {
@@ -227,36 +221,53 @@ int main(int argc, char **argv)
                 break;
          }
       }
-
       if(redraw && al_is_event_queue_empty(event_queue)) {
          redraw = false;
+         al_clear_to_color(al_map_rgb(0,0,0));
          rotationTable[0] = cosf(trans.rotation*3.1415/180.);
          rotationTable[1] = sinf(trans.rotation*3.1415/180.);
         locked_bitmap = al_lock_bitmap(transformedImage,ALLEGRO_PIXEL_FORMAT_RGBA_8888 , ALLEGRO_LOCK_WRITEONLY);
         trans.dst = (unsigned char*)(locked_bitmap->data);
             for(int i = 0; i < WIDTH*(HEIGHT-1); i++){
-                    *(trans.dst)-- = 255;
+                    *(trans.dst)-- = 0;
                     *(trans.dst)-- = 0;
                     *(trans.dst)-- = 0;
                     *(trans.dst)-- = 0;
                 }
 
-        as = transform(trans.src, trans.srcWidth, trans.srcHeight, trans.dst, trans.dstWidth, trans.dstHeight, rotationTable, trans.transposition );
-        break;
+        transform(trans.src, trans.srcWidth, trans.srcHeight, trans.dst, trans.dstWidth, trans.dstHeight, rotationTable[0],rotationTable[1], trans.transposition[0],trans.transposition[1] );
         al_unlock_bitmap(transformedImage);
          al_draw_bitmap(transformedImage,0,0,0);
 
          al_flip_display();
       }
    }
+      trans.rotation = 0.;
+             rotationTable[0] = cosf(30.*3.1415/180.);
+         rotationTable[1] = sinf(30.*3.1415/180.);
+                 locked_bitmap = al_lock_bitmap(transformedImage,ALLEGRO_PIXEL_FORMAT_RGBA_8888 , ALLEGRO_LOCK_WRITEONLY);
+        trans.dst = (unsigned char*)(locked_bitmap->data);
+                trans.dst = (unsigned char*)(locked_bitmap->data);
+            for(int i = 0; i < WIDTH*(HEIGHT-1); i++){
+                    *(trans.dst)-- = 0;
+                    *(trans.dst)-- = 0;
+                    *(trans.dst)-- = 0;
+                    *(trans.dst)-- = 0;
+                }
 
+                 rotationTable[0] = cosf(30.*3.1415/180.);
+         rotationTable[1] = sinf(30.*3.1415/180.);
+   int ad = transform(trans.src, trans.srcWidth, trans.srcHeight, &(trans.dst[1]), trans.dstWidth, trans.dstHeight, rotationTable[0],rotationTable[1], trans.transposition[0],trans.transposition[1] );
+   printf(",%d",ad);
+
+   al_unlock_bitmap(transformedImage);
    free(trans.src);
    al_destroy_bitmap(transformedImage);
    al_destroy_bitmap(image);
    al_destroy_timer(timer);
    al_destroy_display(display);
    al_destroy_event_queue(event_queue);
-   printf("%f",as);
+
    return 0;
 }
 
