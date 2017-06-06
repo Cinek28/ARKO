@@ -1,11 +1,12 @@
 #include "transform.h"
-#include </usr/include/allegro5/allegro.h>
-#include </usr/include/allegro5/allegro_image.h>
-#include </usr/include/allegro5/allegro_native_dialog.h>
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_image.h>
+#include <allegro5/allegro_native_dialog.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+//Structure describing picture and destination bitmap along with picture's rotation and transposition:
 struct transformation{
     unsigned int srcWidth;
     unsigned int srcHeight;
@@ -17,6 +18,7 @@ struct transformation{
     float rotation;
 }trans;
 
+//Using allegro5 grahic library
 const float FPS = 60;
 const int WIDTH = 600;
 const int HEIGHT = 600;
@@ -30,8 +32,10 @@ int main(int argc, char **argv)
     printf("No picture selected. Provide picture file: ./Affinite <picture_name>.");
     return 0;
    }
+   //Initial transformations:
    trans.transposition[0] = 0;
    trans.transposition[1] = 0;
+   trans.rotation = 0.;
    const char* pictureFile = argv[1];
    ALLEGRO_DISPLAY *display = NULL;
    ALLEGRO_EVENT_QUEUE *event_queue = NULL;
@@ -113,10 +117,9 @@ int main(int argc, char **argv)
    trans.dstWidth = WIDTH;
    trans.dstHeight = HEIGHT;
    unsigned int tableSize = trans.srcWidth*trans.srcHeight*4;
-   unsigned int pitch = trans.srcWidth*4;
    trans.src = malloc(tableSize);
-
-     ALLEGRO_LOCKED_REGION* locked_bitmap =  al_lock_bitmap(image,ALLEGRO_PIXEL_FORMAT_RGBA_8888,ALLEGRO_LOCK_READONLY);
+   //Getting picture 32-bit (8888) bitmap:
+   ALLEGRO_LOCKED_REGION* locked_bitmap =  al_lock_bitmap(image,ALLEGRO_PIXEL_FORMAT_RGBA_8888,ALLEGRO_LOCK_READONLY);
    unsigned char* locked_image = (unsigned char*)(locked_bitmap->data);
 
    for (int k = trans.srcHeight*trans.srcWidth*4-4; k >= 0;k=k-4){
@@ -222,10 +225,10 @@ int main(int argc, char **argv)
          }
       }
       if(redraw && al_is_event_queue_empty(event_queue)) {
-         redraw = false;
-         al_clear_to_color(al_map_rgb(0,0,0));
-         rotationTable[0] = cosf(trans.rotation*3.1415/180.);
-         rotationTable[1] = sinf(trans.rotation*3.1415/180.);
+        redraw = false;
+        al_clear_to_color(al_map_rgb(0,0,0));
+        rotationTable[0] = cosf(trans.rotation*3.1415/180.);
+        rotationTable[1] = sinf(trans.rotation*3.1415/180.);
         locked_bitmap = al_lock_bitmap(transformedImage,ALLEGRO_PIXEL_FORMAT_RGBA_8888 , ALLEGRO_LOCK_WRITEONLY);
         trans.dst = (unsigned char*)(locked_bitmap->data);
             for(int i = 0; i < WIDTH*(HEIGHT-1); i++){
@@ -237,9 +240,9 @@ int main(int argc, char **argv)
 
         transform(trans.src, trans.srcWidth, trans.srcHeight, trans.dst, trans.dstWidth, trans.dstHeight, rotationTable[0],rotationTable[1], trans.transposition[0],trans.transposition[1] );
         al_unlock_bitmap(transformedImage);
-         al_draw_bitmap(transformedImage,0,0,0);
+        al_draw_bitmap(transformedImage,0,0,0);
 
-         al_flip_display();
+        al_flip_display();
       }
    }
 
