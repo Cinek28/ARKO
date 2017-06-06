@@ -30,8 +30,8 @@ int main(int argc, char **argv)
     printf("No picture selected. Provide picture file: ./Affinite <picture_name>.");
     return 0;
    }
-      trans.transposition[0] = 20;
-   trans.transposition[1] = 20;
+   trans.transposition[0] = 0;
+   trans.transposition[1] = 0;
    const char* pictureFile = argv[1];
    ALLEGRO_DISPLAY *display = NULL;
    ALLEGRO_EVENT_QUEUE *event_queue = NULL;
@@ -242,23 +242,7 @@ int main(int argc, char **argv)
          al_flip_display();
       }
    }
-      trans.rotation = 0.;
-             rotationTable[0] = cosf(30.*3.1415/180.);
-         rotationTable[1] = sinf(30.*3.1415/180.);
-                 locked_bitmap = al_lock_bitmap(transformedImage,ALLEGRO_PIXEL_FORMAT_RGBA_8888 , ALLEGRO_LOCK_WRITEONLY);
-        trans.dst = (unsigned char*)(locked_bitmap->data);
-                trans.dst = (unsigned char*)(locked_bitmap->data);
-            for(int i = 0; i < WIDTH*(HEIGHT-1); i++){
-                    *(trans.dst)-- = 0;
-                    *(trans.dst)-- = 0;
-                    *(trans.dst)-- = 0;
-                    *(trans.dst)-- = 0;
-                }
 
-                 rotationTable[0] = cosf(30.*3.1415/180.);
-         rotationTable[1] = sinf(30.*3.1415/180.);
-   int ad = transform(trans.src, trans.srcWidth, trans.srcHeight, &(trans.dst[1]), trans.dstWidth, trans.dstHeight, rotationTable[0],rotationTable[1], trans.transposition[0],trans.transposition[1] );
-   printf(",%d",ad);
 
    al_unlock_bitmap(transformedImage);
    free(trans.src);

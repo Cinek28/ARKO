@@ -44,17 +44,31 @@ transform:
     dec ebx ; to remove
     mov r13,0 ;iterating Height
 
-;rsi*r14+r12, rcx, rdi reserved!!!
+;rcx, rdi reserved!!!
 height:
     mov esi, [srcwidth]
     mov r14,0 ;iterating Width
 width:
     ;Calculating rotation coordinates x,y:
-   ; movsd xmm0,[rotationCos]
-    ;movsd xmm1, [rotationSin]
-    ;cvtsi2sd xmm3,r14 ;width
-    ;cvtsi2sd xmm4,r13 ;height
-
+    movss xmm0, [rotationCos]
+    movss xmm1, [rotationSin]
+    cvtsi2ss xmm3,r14 ;width
+    cvtsi2ss xmm4,r13 ;height
+    movsd xmm5,xmm3;calculating rotated width
+    movsd xmm6,xmm4
+    mulss xmm5,xmm0
+    mulss xmm6,xmm1
+    subss xmm5,xmm6
+    cvtss2si r15,xmm5; rotated width (integer)
+    movsd xmm5,xmm3;calculating rotated height
+    movsd xmm6,xmm4
+    mulss xmm5,xmm1
+    mulss xmm6,xmm0
+    addss xmm5,xmm6
+    cvtss2si rax,xmm5
+    push rax
+    push r15
+    ;searching for src table pixel
     mov r15,r14
     mov rax,r13
     mov edx,[srcwidth]
@@ -63,28 +77,29 @@ width:
     mov edx,4
     mul edx
     mov r12,[rdi+rax]
-
-
-     mov r15,r14
-     add r15,[translationX]
-     mov rdx,r15
-     cmp edx,0
-     jl check
-     cmp edx,[dstwidth]
-     jg check
-     mov rax,r13
-     add rax,[translationY]
-     mov edx,[dstwidth]
-     mul edx
-     add rax,r15
-     mov edx,4
-     mul edx
-     mov edx,[size]
-     cmp eax,0
-     jl check
-     cmp eax,edx
-     jg check
-     mov [rcx+rax],r12
+    ;searching for a place for src table pixel on bitmap
+    pop r15
+    pop rax
+    ;add r15,r14
+    add r15,[translationX]
+    mov rdx,r15
+    cmp edx,0
+    jl check
+    cmp edx,[dstwidth]
+    jg check
+    ;add rax,r13
+    add rax,[translationY]
+    mov edx,[dstwidth]
+    mul edx
+    add rax,r15
+    mov edx,4
+    mul edx
+    mov edx,[size]
+    cmp eax,0
+    jl check
+    cmp eax,edx
+    jg check
+    mov [rcx+rax],r12 ;found and written
 check:
     inc r14
     dec esi

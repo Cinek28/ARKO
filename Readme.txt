@@ -9,4 +9,7 @@ Running:
 3. Use "chmod +x Affinite"
 4. Run ./Affinite <picture_name>
 
-Warning: Picture must be set in same folder.
+Warning: Picture must be set in same folder. Additionally program uses Allegro5 libraries, so to work properly one has to install allegro package and link them to project (already linked using makefile)
+
+
+
