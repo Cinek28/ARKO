@@ -58,14 +58,15 @@ width:
     movsd xmm6,xmm4
     mulss xmm5,xmm0
     mulss xmm6,xmm1
-    subss xmm5,xmm6
+    subss xmm5,xmm6 ;width*cos(rot)-height*sin(rot)
     cvtss2si r15,xmm5; rotated width (integer)
     movsd xmm5,xmm3;calculating rotated height
     movsd xmm6,xmm4
     mulss xmm5,xmm1
     mulss xmm6,xmm0
     addss xmm5,xmm6
-    cvtss2si rax,xmm5
+    cvtss2si rax,xmm5;width*sin(rot)+height*cos(rot)
+    ;pushing registers values on stack for later
     push rax
     push r15
     ;searching for src table pixel
@@ -78,17 +79,18 @@ width:
     mul edx
     mov r12,[rdi+rax]
     ;searching for a place for src table pixel on bitmap
+    ;popping from stack (rotation coordinates);
     pop r15
     pop rax
-    ;add r15,r14
-    add r15,[translationX]
+    add r15,[translationX]; adding translation x coordinate to global bitmap coordinates 
     mov rdx,r15
     cmp edx,0
     jl check
     cmp edx,[dstwidth]
     jg check
-    ;add rax,r13
-    add rax,[translationY]
+    add rax,[translationY]; addinf translation y coordinat to global bitmap coordinates
+    ;xdst = width*cos(rot)-height*sin(rot)+translationX
+    ;ydst = width*sin(rot)+height*cos(rot)+translationY
     mov edx,[dstwidth]
     mul edx
     add rax,r15
