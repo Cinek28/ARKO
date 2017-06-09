@@ -39,9 +39,8 @@ transform:
 
     ;rdi- src start, rcx- dst
 ;------------------------------------------------------------------------------
-    ;Loop to print picture into bitmap:
+    ;Loop to print picture into bitmap on given transformed location:
     mov ebx, [srcheight] ;max height
-    ;dec ebx  to remove
     mov r13,0 ;iterating Height
 
 ;rcx, rdi reserved!!!
@@ -54,14 +53,14 @@ width:
     movss xmm1, [rotationSin]
     cvtsi2ss xmm3,r14 ;width
     cvtsi2ss xmm4,r13 ;height
-    movsd xmm5,xmm3;calculating rotated width
-    movsd xmm6,xmm4
+    movss xmm5,xmm3;calculating rotated width
+    movss xmm6,xmm4
     mulss xmm5,xmm0
     mulss xmm6,xmm1
     subss xmm5,xmm6 ;width*cos(rot)-height*sin(rot)
     cvttss2si r15,xmm5; rotated width (integer)
-    movsd xmm5,xmm3;calculating rotated height
-    movsd xmm6,xmm4
+    movss xmm5,xmm3;calculating rotated height
+    movss xmm6,xmm4
     mulss xmm5,xmm1
     mulss xmm6,xmm0
     addss xmm5,xmm6

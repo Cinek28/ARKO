@@ -20,8 +20,8 @@ struct transformation{
 
 //Using allegro5 grahic library
 const float FPS = 60;
-const int WIDTH = 600;
-const int HEIGHT = 600;
+const int WIDTH = 800;
+const int HEIGHT = 800;
 enum MYKEYS {
    KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_Z, KEY_X
 };
