@@ -4,7 +4,7 @@ Linux
 
 Dependencies:
 ==============
-⋅⋅* Allegro5 graphic library
+* Allegro5 graphic library
 
 About:
 =======
